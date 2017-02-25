@@ -28,7 +28,7 @@
                 <span @click="append" class="glyphicon glyphicon-plus"></span>
             </td>
             <td>
-                <input id="new-name" @keyup.enter="append" type="text">
+                <input v-model.trim="newName" @keyup.enter="append" type="text">
             </td>
             <td></td>
             <td></td>
@@ -48,20 +48,21 @@
                     created_at: new Date()
                 }
             ],
-            nextId: 2
+            nextId: 2,
+            newName: ''
         },
         methods: {
             append: function() {
-                if (!$('#new-name').val()) {
+                if (!this.newName) {
                     return;
                 }
                 this.elements.push({
                     id: this.nextId,
-                    name: $('#new-name').val(),
+                    name: this.newName,
                     created_at: new Date()
                 });
                 this.nextId++;
-                $('#new-name').val('');
+                this.newName = '';
             },
             remove: function (index) {
                 this.elements.splice(index, 1);
