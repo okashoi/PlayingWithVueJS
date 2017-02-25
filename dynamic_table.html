@@ -13,6 +13,7 @@
             <th>#</th>
             <th>Name</th>
             <th>Created at</th>
+            <th>Updated at</th>
             <th></th>
             <th></th>
         </tr>
@@ -20,9 +21,18 @@
         <tbody>
         <tr v-for="(elem, index) in elements">
             <td>{{ elem.id }}</td>
-            <td>{{ elem.name }}</td>
-            <td>{{ elem.created_at | formatDate }}</td>
-            <td><span @click="duplicate(elem.name)" class="glyphicon glyphicon-duplicate"></span></td>
+            <td>
+                <input type="text"
+                       v-model="elem.name"
+                       @keyup.enter="focusNextInput()"
+                       @blur="elem.updatedAt = new Date()"
+                >
+            </td>
+            <td>{{ elem.createdAt | formatDate }}</td>
+            <td>{{ elem.updatedAt | formatDate }}</td>
+            <td>
+                <span @click="duplicate(elem.name)" class="glyphicon glyphicon-duplicate"></span>
+            </td>
             <td><span @click="remove(index)" class="glyphicon glyphicon-remove"></span></td>
         </tr>
         <tr>
@@ -32,6 +42,7 @@
             <td>
                 <input id="new-name" v-model.trim="newName" @keyup.enter="append" type="text">
             </td>
+            <td></td>
             <td></td>
             <td></td>
             <td></td>
@@ -48,7 +59,8 @@
                 {
                     id: 1,
                     name: 'Test',
-                    created_at: new Date()
+                    createdAt: new Date(),
+                    updatedAt: new Date()
                 }
             ],
             nextId: 2,
@@ -62,10 +74,15 @@
                 this.elements.push({
                     id: this.nextId,
                     name: this.newName,
-                    created_at: new Date()
+                    createdAt: new Date(),
+                    updatedAt: new Date()
                 });
                 this.nextId++;
                 this.newName = '';
+            },
+            focusNextInput: function () {
+                var nextInputIndex = $('input').index(document.activeElement) + 1;
+                $('input')[nextInputIndex].focus();
             },
             duplicate: function (name) {
                 this.newName = name;
