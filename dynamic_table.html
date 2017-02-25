@@ -21,11 +21,11 @@
             <td>{{ elem.id }}</td>
             <td>{{ elem.name }}</td>
             <td>{{ elem.created_at | formatDate }}</td>
-            <td><span v-on:click="remove(index)" class="glyphicon glyphicon-remove"></span></td>
+            <td><span @click="remove(index)" class="glyphicon glyphicon-remove"></span></td>
         </tr>
         <tr>
             <td>
-                <span v-on:click="append" class="glyphicon glyphicon-plus"></span>
+                <span @click="append" class="glyphicon glyphicon-plus"></span>
             </td>
             <td>
                 <input id="new-name" type="text">
