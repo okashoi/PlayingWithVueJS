@@ -20,7 +20,7 @@
         <tr v-for="(elem, index) in elements">
             <td>{{ elem.id }}</td>
             <td>{{ elem.name }}</td>
-            <td>{{ formatDate(elem.created_at) }}</td>
+            <td>{{ elem.created_at | formatDate }}</td>
             <td><span v-on:click="remove(index)" class="glyphicon glyphicon-remove"></span></td>
         </tr>
         <tr>
@@ -63,6 +63,11 @@
                 this.nextId++;
                 $('#new-name').val('');
             },
+            remove: function (index) {
+                this.elements.splice(index, 1);
+            }
+        },
+        filters: {
             formatDate: function (datetime) {
                 var year = datetime.getFullYear();
                 var month = datetime.getMonth() + 1;
@@ -71,9 +76,6 @@
                 var minute = datetime.getMinutes();
                 var second = datetime.getSeconds();
                 return year + '-' + month + '-' + date + ' ' + hour + ':' + minute + ':' + second;
-            },
-            remove: function (index) {
-                this.elements.splice(index, 1);
             }
         }
     });
