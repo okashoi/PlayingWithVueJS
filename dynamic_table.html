@@ -12,6 +12,7 @@
         <tr>
             <th>#</th>
             <th>Name</th>
+            <th>Age</th>
             <th>Created at</th>
             <th>Updated at</th>
             <th></th>
@@ -19,19 +20,28 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(elem, index) in elements">
-            <td>{{ elem.id }}</td>
+        <tr v-for="(user, index) in users">
+            <td>{{ user.id }}</td>
             <td>
                 <input type="text"
-                       v-model="elem.name"
-                       @keyup.enter="focusNextInput()"
-                       @blur="elem.updatedAt = new Date()"
+                       class="name-input"
+                       v-model="user.name"
+                       @keyup.enter="focusNextNameInput()"
+                       @blur="user.updatedAt = new Date()"
                 >
             </td>
-            <td>{{ elem.createdAt | formatDate }}</td>
-            <td>{{ elem.updatedAt | formatDate }}</td>
             <td>
-                <span v-show="!isFull" @click="duplicate(elem.name)" class="glyphicon glyphicon-duplicate"></span>
+                <input type="number"
+                       class="age-input"
+                       v-model="user.age"
+                       @keyup.enter="focusNextAgeInput()"
+                       @blur="user.updatedAt = new Date()"
+                >
+            </td>
+            <td>{{ user.createdAt | formatDate }}</td>
+            <td>{{ user.updatedAt | formatDate }}</td>
+            <td>
+                <span v-show="!isFull" @click="duplicate(user)" class="glyphicon glyphicon-duplicate"></span>
             </td>
             <td><span @click="remove(index)" class="glyphicon glyphicon-remove"></span></td>
         </tr>
@@ -40,7 +50,18 @@
                 <span @click="append" class="glyphicon glyphicon-plus"></span>
             </td>
             <td>
-                <input id="new-name" v-model.trim="newName" @keyup.enter="append" type="text">
+                <input id="new-user-name"
+                       type="text"
+                       class="name-input"
+                       v-model.trim="newUserName"
+                       @keyup.enter="append" >
+            </td>
+            <td>
+                <input id="new-user-age"
+                       type="number"
+                       class="age-input"
+                       v-model.number="newUserAge"
+                       @keyup.enter="append">
             </td>
             <td></td>
             <td></td>
@@ -55,47 +76,56 @@
     var vm = new Vue({
         el: '#app',
         data: {
-            elements: [
+            users: [
                 {
                     id: 1,
                     name: 'Test',
+                    age: 20,
                     createdAt: new Date(),
                     updatedAt: new Date()
                 }
             ],
             nextId: 2,
-            newName: '',
+            newUserName: '',
+            newUserAge: null,
             maxLength: 5
         },
         computed: {
             isFull: function () {
-                return this.elements.length >= this.maxLength;
+                return this.users.length >= this.maxLength;
             }
         },
         methods: {
             append: function () {
-                if (!this.newName) {
+                if (!this.newUserName || !this.newUserAge) {
                     return;
                 }
-                this.elements.push({
+                this.users.push({
                     id: this.nextId,
-                    name: this.newName,
+                    name: this.newUserName,
+                    age: this.newUserAge,
                     createdAt: new Date(),
                     updatedAt: new Date()
                 });
                 this.nextId++;
-                this.newName = '';
+                this.newUserName = '';
+                this.newUserAge = null;
             },
-            focusNextInput: function () {
-                var nextInputIndex = $('input').index(document.activeElement) + 1;
-                $('input')[nextInputIndex].focus();
+            focusNextNameInput: function () {
+                var nextInputIndex = $('input.name-input').index(document.activeElement) + 1;
+                $('input.name-input')[nextInputIndex].focus();
             },
-            duplicate: function (name) {
-                this.newName = name;
-                $('#new-name').focus();
+            focusNextAgeInput: function () {
+                var nextInputIndex = $('input.age-input').index(document.activeElement) + 1;
+                $('input.age-input')[nextInputIndex].focus();
+            },
+            duplicate: function (elem) {
+                this.newUserName = elem.name;
+                this.newUserAge = elem.age;
+                $('#new-user-name').focus();
             },
             remove: function (index) {
-                this.elements.splice(index, 1);
+                this.users.splice(index, 1);
             }
         },
         filters: {
