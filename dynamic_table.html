@@ -14,6 +14,7 @@
             <th>Name</th>
             <th>Created at</th>
             <th></th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -21,6 +22,7 @@
             <td>{{ elem.id }}</td>
             <td>{{ elem.name }}</td>
             <td>{{ elem.created_at | formatDate }}</td>
+            <td><span @click="duplicate(elem.name)" class="glyphicon glyphicon-duplicate"></span></td>
             <td><span @click="remove(index)" class="glyphicon glyphicon-remove"></span></td>
         </tr>
         <tr>
@@ -28,8 +30,9 @@
                 <span @click="append" class="glyphicon glyphicon-plus"></span>
             </td>
             <td>
-                <input v-model.trim="newName" @keyup.enter="append" type="text">
+                <input id="new-name" v-model.trim="newName" @keyup.enter="append" type="text">
             </td>
+            <td></td>
             <td></td>
             <td></td>
         </tr>
@@ -52,7 +55,7 @@
             newName: ''
         },
         methods: {
-            append: function() {
+            append: function () {
                 if (!this.newName) {
                     return;
                 }
@@ -63,6 +66,10 @@
                 });
                 this.nextId++;
                 this.newName = '';
+            },
+            duplicate: function (name) {
+                this.newName = name;
+                $('#new-name').focus();
             },
             remove: function (index) {
                 this.elements.splice(index, 1);
