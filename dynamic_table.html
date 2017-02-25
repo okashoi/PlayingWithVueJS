@@ -20,31 +20,14 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(user, index) in users">
-            <td>{{ user.id }}</td>
-            <td>
-                <input type="text"
-                       class="name-input"
-                       v-model="user.name"
-                       @keyup.enter="focusNextNameInput()"
-                       @blur="user.updatedAt = new Date()"
-                >
-            </td>
-            <td>
-                <input type="number"
-                       class="age-input"
-                       v-model="user.age"
-                       @keyup.enter="focusNextAgeInput()"
-                       @blur="user.updatedAt = new Date()"
-                >
-            </td>
-            <td>{{ user.createdAt | formatDate }}</td>
-            <td>{{ user.updatedAt | formatDate }}</td>
-            <td>
-                <span v-show="!isFull" @click="duplicate(user)" class="glyphicon glyphicon-duplicate"></span>
-            </td>
-            <td><span @click="remove(index)" class="glyphicon glyphicon-remove"></span></td>
-        </tr>
+        <tr is="user"
+            v-for="(user, index) in users"
+            :user="user"
+            :index="index"
+            :is-full="isFull"
+            @duplicate="duplicate(user)"
+            @remove="remove(index)"
+        ></tr>
         <tr v-show="!isFull">
             <td>
                 <span @click="append" class="glyphicon glyphicon-plus"></span>
@@ -72,9 +55,73 @@
     </table>
 </div>
 
+<script type="text/x-template" id="user-template">
+    <tr>
+        <td>{{ user.id }}</td>
+        <td>
+            <input type="text"
+                   class="name-input"
+                   v-model="user.name"
+                   @keyup.enter="focusNextNameInput()"
+                   @blur="user.updatedAt = new Date()"
+            >
+        </td>
+        <td>
+            <input type="number"
+                   class="age-input"
+                   v-model="user.age"
+                   @keyup.enter="focusNextAgeInput()"
+                   @blur="user.updatedAt = new Date()"
+            >
+        </td>
+        <td>{{ user.createdAt | formatDate }}</td>
+        <td>{{ user.updatedAt | formatDate }}</td>
+        <td>
+            <span v-show="!isFull" @click="duplicate" class="glyphicon glyphicon-duplicate"></span>
+        </td>
+        <td><span @click="remove" class="glyphicon glyphicon-remove"></span></td>
+    </tr>
+</script>
+
 <script type="text/javascript">
+    var user = {
+        props: ['user', 'isFull'],
+        template: '#user-template',
+        methods: {
+            focusNextNameInput: function () {
+                var nextInputIndex = $('input.name-input').index(document.activeElement) + 1;
+                $('input.name-input')[nextInputIndex].focus();
+            },
+            focusNextAgeInput: function () {
+                var nextInputIndex = $('input.age-input').index(document.activeElement) + 1;
+                $('input.age-input')[nextInputIndex].focus();
+            },
+            duplicate: function () {
+                this.$emit('duplicate');
+            },
+            remove: function () {
+                this.$emit('remove');
+            }
+        },
+        filters: {
+            formatDate: function (datetime) {
+                datime = new Date(datetime);
+                var year = datetime.getFullYear();
+                var month = datetime.getMonth() + 1;
+                var date = datetime.getDate();
+                var hour = datetime.getHours();
+                var minute = datetime.getMinutes();
+                var second = datetime.getSeconds();
+                return year + '-' + month + '-' + date + ' ' + hour + ':' + minute + ':' + second;
+            }
+        }
+    };
+
     var vm = new Vue({
         el: '#app',
+        components: {
+            'user': user
+        },
         data: {
             users: [
                 {
@@ -111,32 +158,13 @@
                 this.newUserName = '';
                 this.newUserAge = null;
             },
-            focusNextNameInput: function () {
-                var nextInputIndex = $('input.name-input').index(document.activeElement) + 1;
-                $('input.name-input')[nextInputIndex].focus();
-            },
-            focusNextAgeInput: function () {
-                var nextInputIndex = $('input.age-input').index(document.activeElement) + 1;
-                $('input.age-input')[nextInputIndex].focus();
-            },
-            duplicate: function (elem) {
-                this.newUserName = elem.name;
-                this.newUserAge = elem.age;
+            duplicate: function (user) {
+                this.newUserName = user.name;
+                this.newUserAge = user.age;
                 $('#new-user-name').focus();
             },
             remove: function (index) {
                 this.users.splice(index, 1);
-            }
-        },
-        filters: {
-            formatDate: function (datetime) {
-                var year = datetime.getFullYear();
-                var month = datetime.getMonth() + 1;
-                var date = datetime.getDate();
-                var hour = datetime.getHours();
-                var minute = datetime.getMinutes();
-                var second = datetime.getSeconds();
-                return year + '-' + month + '-' + date + ' ' + hour + ':' + minute + ':' + second;
             }
         }
     });
