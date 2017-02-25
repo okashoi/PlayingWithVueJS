@@ -28,7 +28,7 @@
                 <span @click="append" class="glyphicon glyphicon-plus"></span>
             </td>
             <td>
-                <input id="new-name" type="text">
+                <input id="new-name" @keyup.enter="append" type="text">
             </td>
             <td></td>
             <td></td>
