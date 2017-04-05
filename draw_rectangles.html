@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <script src="https://npmcdn.com/vue/dist/vue.js"></script>
+  <style>
+    div#app {
+      background-color: #888;
+      height: 400px;
+      position: relative;
+    }
+    div.rect {
+      background-color: rgba(255, 255, 255, 0.2);
+      position: absolute;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div
+    id="app"
+    class="row"
+    @mousedown.capture="startDraw"
+    @mousemove="updateRect"
+    @mouseup="commit"
+  >
+    <rect-component
+      v-for="rect in rects"
+      :x="rect.x"
+      :y="rect.y"
+      :width="rect.width"
+      :height="rect.height"
+    >
+    </rect-component>
+    <rect-component
+      :x="creatingRect.x"
+      :y="creatingRect.y"
+      :width="creatingRect.width"
+      :height="creatingRect.height"
+      :hidden="!isDragging"
+    >
+    </rect-component>
+  </div>
+</div>
+
+<script type="text/javascript">
+
+  var rect = {
+    props: ['x', 'y', 'width', 'height'],
+    template: '<div class="rect" :style="styles"></div>',
+    computed: {
+      styles: function () {
+        return {
+          width: this.width + 'px',
+          height: this.height + 'px',
+          transform: 'translate(' + this.x + 'px, ' + this.y + 'px)',
+          '-webkit-transform': 'translate(' + this.x + 'px, ' + this.y + 'px)'
+        };
+      }
+    }
+  };
+
+  var vm = new Vue({
+    el: '#app',
+    data: {
+      isDragging: false,
+      creatingRect: {},
+      rects: [],
+    },
+    components: {
+      'rect-component': rect
+    },
+    methods: {
+      startDraw: function (e) {
+        this.isDragging = true;
+
+        var pos = this.getRelativePosition(e);
+
+        this.creatingRect = {
+          x: pos.x,
+          y: pos.y,
+          width: 0,
+          height: 0
+        }
+      },
+      updateRect: function (e) {
+        if (!this.isDragging) {
+          return;
+        }
+
+        var pos = this.getRelativePosition(e);
+
+        this.creatingRect.width = pos.x - this.creatingRect.x;
+        this.creatingRect.height = pos.y - this.creatingRect.y;
+      },
+      commit: function (e) {
+        if (!this.isDragging) {
+          return;
+        }
+        this.isDragging = false;
+
+        // Push the shallow copy
+        this.rects.push($.extend(true, {}, this.creatingRect));
+        this.creatingRect = {};
+      },
+      getRelativePosition: function (e) {
+        var clientRect = document.getElementById('app').getBoundingClientRect();
+
+        return {
+          x: e.pageX - clientRect.left - window.pageXOffset,
+          y: e.pageY - clientRect.top - window.pageYOffset
+        };
+      }
+    }
+  });
+
+</script>
+
+</body>
+</html>
