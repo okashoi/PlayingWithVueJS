@@ -1,0 +1,114 @@
+<html>
+<head>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://npmcdn.com/vue/dist/vue.js"></script>
+</head>
+<body>
+<div id="app" class="container">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Item</th>
+            <th v-for="date in dates">{{ date }}</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr is="todo"
+            v-for="(todo, index) in todos"
+            :title="todo.title"
+            :checks="todo.checks"
+            :dates="dates"
+            @remove="removeTodo(index)"
+        >
+        </tr>
+        <tr>
+            <td>
+                <input v-model="newTitle" @keyup.enter="addTodo">
+            </td>
+            <td v-for="date in dates"></td>
+            <td></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script type="text/x-template" id="todo-template">
+    <tr>
+        <td>{{ title }}</td>
+        <td v-for="date in dates">
+            <input v-model="checks[date]" type="checkbox">
+        </td>
+        <td><span @click="remove" class="glyphicon glyphicon-remove"></span></td>
+    </tr>
+</script>
+
+<script type="text/javascript">
+    var todos = JSON.parse(localStorage.getItem('todos'));
+    if (!todos) {
+        todos = [];
+    }
+
+    // TODO: delete checks older than 7 days
+
+    var todo = {
+        props: ['title', 'checks', 'dates'],
+        template: '#todo-template',
+        methods: {
+            remove: function () {
+                this.$emit('remove');
+            }
+        }
+    };
+
+    var vm = new Vue({
+        el: '#app',
+        components: {
+            'todo': todo
+        },
+        data: {
+            todos: todos,
+            newTitle: '',
+            followDates: 7
+        },
+        computed: {
+            dates: function () {
+                var dates = [];
+                var date = new Date();
+                for (var i = 0; i < this.followDates; i++) {
+                    var dateString = (date.getMonth() + 1) + '/' + date.getDate();
+                    dates.push(dateString);
+                    date.setDate(date.getDate() - 1);
+                }
+                return dates;
+            }
+        },
+        methods: {
+            addTodo: function () {
+                if (!this.newTitle) {
+                    return;
+                }
+                var checks = {};
+                this.todos.push({
+                    title: this.newTitle,
+                    checks: checks
+                });
+                this.newTitle = '';
+
+            },
+            removeTodo: function (index) {
+                this.todos.splice(index, 1);
+            }
+        }
+    });
+
+    $(document).ready(function () {
+        $(window).on('beforeunload', function (e) {
+            localStorage.setItem('todos', JSON.stringify(vm.todos));
+        });
+    });
+</script>
+</body>
+</html>
